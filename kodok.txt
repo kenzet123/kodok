@@ -2,35 +2,22 @@
 sudo apt install apache2
 sudo apt install samba
 sudo apt install isc-dhcp-server
+sudo apt install iptables
 sudo nano /var/www/html/index.html
 
 <!DOCTYPE html>
-<html lang="hu">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Weboldal</title>
-    <style>
-        body {
-            background-color: lightblue;
-            font-family: Arial, sans-serif;
-            text-align: center;
-            padding: 50px;
-        }
-    </style>
-</head>
 <body>
     <h1>Debian Weboldal</h1>
     <p>Link a <a href="http://www.zipernowsky.hu">www.zipernowsky.hu</a> oldalra</p>
-    <p>Az én nevem: [A saját neved]</p>
+    <p>Szabó Martin</p>
     <p>Debian</p>
-    <p>Mai dátum: <?php echo date("Y-m-d"); ?></p>
+    <p>2025.05.29></p>
 </body>
 </html>
 
 sudo systemctl restart apache2
 
-http://<elastic-ip>
+http://<elastic-ip>(a publikus kell asszem)
 
 5. A DHCP kiszolgáló telepítése
 a. A tartományban 40 számítógép van, ezért egy 64-es tartományt (Range) állítson be. Használja azt a belső IP tartományt, amelyet az AWS-től kapott a számítógép.
@@ -84,6 +71,9 @@ e. Engedélyezze a DNS szervert.
 bash
 Másolás
 sudo iptables -A INPUT -p udp --dport 53 -j ACCEPT
+
+iptables -L -v (ki listázza)
+
 f. Készítsen a beállításokról képernyőmentést!
 Ezeket a beállításokat az iptables parancsok segítségével végezd el, és készíts képernyőmentést róluk.
 
@@ -134,5 +124,5 @@ Indítsd újra a Samba szolgáltatást:
 bash
 Másolás
 sudo systemctl restart smbd
-Ezek a lépések segítenek elvégezni az összes szükség
+
 
