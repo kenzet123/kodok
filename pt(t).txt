@@ -1,0 +1,113 @@
+----- Eszköznév beállítása -----
+
+	hostname>enable
+	hostname#config t
+	hostname(config)# hostname Sw-Floor-1
+	Sw-Floor-1(config)#
+
+
+----- Line console 0 jelszó -----
+
+	Sw-Floor-1# configure terminal
+	Sw-Floor-1(config)# line console 0
+	Sw-Floor-1(config-line)# password cisco
+	Sw-Floor-1(config-line)# login
+	Sw-Floor-1(config-line)# end
+	Sw-Floor-1#
+
+
+----- felhasználói EXEC mód jelszó -----
+
+	Sw-Floor-1# configure terminal
+	Sw-Floor-1(config)# enable secret class
+	Sw-Floor-1(config)# exit
+	Sw-Floor-1#
+
+
+----- Line vty 0 15 jelszó -----
+
+	Sw-Floor-1# configure terminal
+	Sw-Floor-1(config)# line vty 0 15
+	Sw-Floor-1(config-line)# password cisco 
+	Sw-Floor-1(config-line)# login 
+	Sw-Floor-1(config-line)# end
+	Sw-Floor-1#
+
+
+----- Jelszavak titkosítása -----
+
+	Sw-Floor-1# configure terminal
+	Sw-Floor-1(config)# service password-encryption
+	Sw-Floor-1(config)#
+
+
+----- Eddigi beállítások ellenőrzése -----
+
+	Sw-Floor-1# show running-config
+
+
+----- Beállítások mentése indítási beállításnak -----
+
+	Sw-Floor-1# copy running-config startup-config
+
+
+----- Ip-cím + MAC-cím beállítása + default-gateway megadás -----
+
+	Sw-Floor-1# configure terminal
+	Sw-Floor-1(config)# interface vlan 1
+	Sw-Floor-1(config-if)# ip address 192.168.1.20 255.255.255.0
+	Sw-Floor-1(config-if)# no shutdown
+	Sw-Floor-1(config-if)# exit
+	Sw-Floor-1(config)# ip default-gateway 192.168.1.1
+
+S1(config)#username admin password cisco
+line vty 0 15
+transport input ssh
+login local
+exit
+ip ssh version 2
+exit
+crypto key generate rsa
+ip domian-name
+
+interface range GigabitEthernet 0/1-200
+switchport mode access
+switchport port-security
+switchport port-security maximum 2
+switchport port-security mac-address sticky
+switchport port-security violation restrict
+switchport port-security violation shutdown
+
+VLAN Elnevezés
+S1(config)# vlan 20
+S1(config-vlan)# name Student
+S1(config-vlan)# end
+
+VLAN-hoz hozzá rendelés
+S1(config)# interface f0/18
+S1(config-if)# switchport mode access
+S1(config-if)# switchport access vlan 20
+S1(config-if)# end
+
+VLAN visszavonás a rendelést
+S1(config)# interface F0/18
+S1(config-if)# no switchport access vlan
+
+VLAN törlése
+S1(config)#no vlan 20
+S1(config)#end
+
+Trunk beállitása
+S1(config)# interface FastEthernet0/1
+S1(config-if)# switchport mode trunk
+S1(config-if)# switchport trunk native vlan 99
+S1(config-if)# swithcport trunk allowed vlan 10,20,30,99
+S1(config-if)# end
+
+
+
+router bgp 100
+bgp router-id 1.1.1.1
+neighbor 10.0.1.2 remote-as 200
+neighbor 10.0.0.2 remote-as 300
+network 192.168.1.0 (mask 255.255.255.128 HA NEM 24-ES)
