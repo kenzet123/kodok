@@ -1,0 +1,138 @@
+172sudo apt update
+sudo apt install apache2
+sudo apt install samba
+sudo apt install isc-dhcp-server
+sudo nano /var/www/html/index.html
+
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weboldal</title>
+    <style>
+        body {
+            background-color: lightblue;
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 50px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Debian Weboldal</h1>
+    <p>Link a <a href="http://www.zipernowsky.hu">www.zipernowsky.hu</a> oldalra</p>
+    <p>Az én nevem: [A saját neved]</p>
+    <p>Debian</p>
+    <p>Mai dátum: <?php echo date("Y-m-d"); ?></p>
+</body>
+</html>
+
+sudo systemctl restart apache2
+
+http://<elastic-ip>
+
+5. A DHCP kiszolgáló telepítése
+a. A tartományban 40 számítógép van, ezért egy 64-es tartományt (Range) állítson be. Használja azt a belső IP tartományt, amelyet az AWS-től kapott a számítógép.
+Telepítsd a ISC DHCP Server csomagot:
+
+bash
+Másolás
+sudo apt install isc-dhcp-server
+Szerkeszd a konfigurációs fájlt:
+
+bash
+Másolás
+sudo nano /etc/dhcp/dhcpd.conf
+Állítsd be a DHCP beállításokat:
+
+text
+Másolás
+subnet <AWS-alapú IP-tartomány> netmask <netmask> {
+    range <start-ip> <end-ip>;
+    option routers <gateway-ip>;
+    option domain-name-servers 8.8.8.8, 8.8.4.4;
+    option domain-name "aws01.local";
+    default-lease-time 1111;
+    max-lease-time 2222;
+    authoritative;
+}
+b-g. A többi beállítást is a konfigurációs fájlban végezheted el. Miután beállítottad, indítsd újra a DHCP szolgáltatást:
+bash
+Másolás
+sudo systemctl restart isc-dhcp-server
+6. Tűzfal beállítása
+a. Telepítse fel az iptables-t.
+bash
+Másolás
+sudo apt install iptables
+b. Dobja el a localhost címre érkező ping (ICMP) csomagokat.
+bash
+Másolás
+sudo iptables -A INPUT -i lo -p icmp --icmp-type echo-request -j DROP 
+vagy
+sudo iptables -A INPUT -p icmp --icmp-type 8 -d 127.0.0.1 -j DROP
+c. Engedélyezze az FTP kapcsolatot.
+bash
+Másolás
+sudo iptables -A INPUT -p tcp --dport 21 -j ACCEPT
+d. Engedélyezze a HTTP kapcsolatot.
+bash
+Másolás
+sudo iptables -A INPUT -p tcp --dport 80 -j ACCEPT
+e. Engedélyezze a DNS szervert.
+bash
+Másolás
+sudo iptables -A INPUT -p udp --dport 53 -j ACCEPT
+f. Készítsen a beállításokról képernyőmentést!
+Ezeket a beállításokat az iptables parancsok segítségével végezd el, és készíts képernyőmentést róluk.
+
+7. Konfigurálja be a Debian szervert, hogy az az alábbi névszervereket használja
+a. és b. A DNS szerverek beállítása:
+Nyisd meg a DNS konfigurációs fájlt:
+
+bash
+Másolás
+sudo nano /etc/resolv.conf
+Írd be a következő sorokat:
+
+text
+Másolás
+nameserver 8.8.8.8
+nameserver 8.8.4.4
+Mentés és kilépés.
+
+c. Készítsen a beállításokról képernyőmentést!
+8. Samba megosztás készítése
+a. Telepítse fel a Samba szervert.
+bash
+Másolás
+sudo apt install samba
+b. Készítsen egy tetszőleges megosztást Samba segítségével.
+Szerkeszd a Samba konfigurációs fájlt:
+
+bash
+Másolás
+sudo nano /etc/samba/smb.conf
+Adja hozzá a következő megosztási beállítást:
+
+text
+Másolás
+[shared]
+path = /home/ubuntu/shared
+browsable = yes
+read only = no
+guest ok = yes
+Hozd létre a megosztás könyvtárát:
+
+bash
+Másolás
+sudo mkdir /home/ubuntu/shared
+sudo chmod 777 /home/ubuntu/shared
+Indítsd újra a Samba szolgáltatást:
+
+bash
+Másolás
+sudo systemctl restart smbd
+Ezek a lépések segítenek elvégezni az összes szükség
+
